@@ -24,9 +24,16 @@ for file in *.fastq*; do
 done
 
 # Calculating RT
+n=0
 for file in *_E_.bg; do
     paste $file ${file%E_.bg}L_.bg | awk '{if($8 != 0 && $4 != 0){print $1,$2,$3,log($4/$8)/log(2)}}' OFS='\t' > ${file%E_.bg}T_.bg
+    n=$((n+1));
 done
 
 # Merging RT files
-bedtools unionbedg -filler "NA" -i *T_.bg > merge_RT.txt
+if [ "$n" -gt "1" ]; then
+    bedtools unionbedg -filler "NA" -i *T_.bg > merge_RT.txt
+else
+    cp *T_.bg merge_RT.txt
+fi
+
